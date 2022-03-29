@@ -2,13 +2,16 @@ DOCKER_USERNAME ?= ksiig
 APPLICATION_NAME ?= hello-world
 GIT_HASH ?= $(shell git log --format="%h" -n 1)
 
-build:
-	docker build --tag ${DOCKER_USERNAME}/${APPLICATION_NAME}:${GIT_HASH} .
+_BUILD_ARGS_TAG ?= ${GIT_HASH}
+_BUILD_ARGS_RELEASE_TAG ?= latest
 
-push:
-	docker push ${DOCKER_USERNAME}/${APPLICATION_NAME}:${GIT_HASH}
+_builder:
+	docker build --tag ${DOCKER_USERNAME}/${APPLICATION_NAME}:${_BUILD_ARGS_TAG} .
 
-release:
-	docker pull ${DOCKER_USERNAME}/${APPLICATION_NAME}:${GIT_HASH}
-	docker tag  ${DOCKER_USERNAME}/${APPLICATION_NAME}:${GIT_HASH} ${DOCKER_USERNAME}/${APPLICATION_NAME}:latest
-	docker push ${DOCKER_USERNAME}/${APPLICATION_NAME}:latest
+_pusher:
+	docker push ${DOCKER_USERNAME}/${APPLICATION_NAME}:${_BUILD_ARGS_TAG}
+
+_releaser:
+	docker pull ${DOCKER_USERNAME}/${APPLICATION_NAME}:${_BUILD_ARGS_TAG}
+	docker tag  ${DOCKER_USERNAME}/${APPLICATION_NAME}:${_BUILD_ARGS_TAG} ${DOCKER_USERNAME}/${APPLICATION_NAME}:latest
+	docker push ${DOCKER_USERNAME}/${APPLICATION_NAME}:${_BUILD_ARGS_RELEASE_TAG}
